@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Materi Pembelajaran - AKHIN.GO</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============================================================
+       Style khusus untuk halaman belajar.html (LMS mini)
+       Menggunakan variabel dari style.css agar konsisten
+       ============================================================ */
+
+    /* Layout utama: sidebar + konten */
+    .belajar-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: calc(100vh - 64px);
+      margin-top: 64px;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      background: var(--color-primary);
+      border-right: 1px solid var(--border-color);
+      padding: 0;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+    }
+
+    /* Header sidebar */
+    .sidebar-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(74, 154, 187, 0.08);
+    }
+
+    .sidebar-header h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--color-accent);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Daftar bab di sidebar */
+    .bab-list {
+      padding: 12px 0;
+    }
+
+    /* Judul bab (bisa diklik untuk buka/tutup subbab) */
+    .bab-item {
+      cursor: pointer;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .bab-item:hover {
+      background: rgba(74, 154, 187, 0.1);
+      color: var(--text-primary);
+    }
+    .bab-item.active {
+      color: var(--color-accent);
+      background: rgba(74, 154, 187, 0.12);
+    }
+
+    /* Panah accordion */
+    .bab-arrow {
+      font-size: 10px;
+      transition: transform 0.2s ease;
+    }
+    .bab-item.open .bab-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* Daftar subbab */
+    .subbab-list {
+      display: none; /* Tersembunyi secara default */
+      padding: 0 0 8px;
+    }
+    .subbab-list.open {
+      display: block;
+    }
+
+    /* Item subbab */
+    .subbab-item {
+      padding: 9px 20px 9px 36px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .subbab-item:hover {
+      color: var(--text-primary);
+      background: rgba(74, 154, 187, 0.08);
+    }
+    .subbab-item.active {
+      color: var(--color-accent);
+      background: rgba(74, 154, 187, 0.12);
+    }
+
+    /* Ikon tipe konten di subbab */
+    .subbab-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ===== AREA KONTEN UTAMA ===== */
+    .konten-area {
+      background: var(--bg-main);
+      padding: 0;
+      overflow-y: auto;
+    }
+
+    /* Header konten */
+    .konten-header {
+      background: linear-gradient(135deg, var(--color-primary), #0d2540);
+      padding: 40px 48px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .konten-header .breadcrumb {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .konten-header .breadcrumb a {
+      color: var(--color-accent);
+    }
+    .konten-header .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .konten-header h1 {
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .konten-header p {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    /* Body konten (tempat materi tampil) */
+    .konten-body {
+      padding: 40px 48px;
+      max-width: 900px;
+    }
+
+    /* ===== BLOK KONTEN (modul, video, game, kuis) ===== */
+    .konten-blok {
+      margin-bottom: 40px;
+    }
+
+    .konten-blok h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .konten-blok p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* Wrapper embed (Canva, YouTube, Game, dll) */
+    .embed-wrapper {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-top: 56.25%; /* Rasio 16:9 */
+      background: var(--bg-card);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .embed-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Link sumber embed */
+    .embed-source {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+    .embed-source a {
+      color: var(--color-accent);
+    }
+    .embed-source a:hover {
+      text-decoration: underline;
+    }
+
+    /* Wrapper khusus kuis (tinggi tetap) */
+    .kuis-wrapper {
+      width: 100%;
+      min-height: 635px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    .kuis-wrapper iframe {
+      flex: 1;
+      border: none;
+      border-radius: var(--border-radius);
+    }
+
+    /* Tombol link ke game eksternal */
+    .game-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
+      color: white;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+    }
+    .game-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 123, 123, 0.4);
+    }
+
+    /* Gambar materi */
+    .materi-img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      margin: 16px 0;
+      border: 1px solid var(--border-color);
+      object-fit: cover;
+    }
+
+    /* Divider antar konten */
+    .konten-divider {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 36px 0;
+    }
+
+    /* Badge tipe konten */
+    .konten-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .badge-modul  { background: rgba(74, 154, 187, 0.2); color: var(--color-accent); }
+    .badge-video  { background: rgba(220, 80, 80, 0.2);  color: #e07070; }
+    .badge-game   { background: rgba(80, 200, 120, 0.2); color: #70d080; }
+    .badge-kuis   { background: rgba(240, 192, 64, 0.2); color: var(--color-gold); }
+
+    /* Navigasi bab (tombol prev/next) */
+    .nav-bab {
+      display: flex;
+      gap: 16px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .nav-bab a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .nav-bab a:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: var(--bg-card-hover);
+    }
+
+    /* ===== HAMBURGER SIDEBAR MOBILE ===== */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(74, 154, 187, 0.5);
+      transition: all 0.2s ease;
+    }
+    .sidebar-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 154, 187, 0.6);
+    }
+
+    /* ===== RESPONSIVE MOBILE ===== */
+    @media (max-width: 768px) {
+      /* Layout jadi 1 kolom */
+      .belajar-layout {
+        grid-template-columns: 1fr;
+        margin-top: 64px;
+      }
+
+      /* Sidebar disembunyikan, muncul saat tombol diklik */
+      .sidebar {
+        position: fixed;
+        left: -300px;
+        top: 64px;
+        bottom: 0;
+        width: 280px;
+        z-index: 150;
+        transition: left 0.3s ease;
+        height: calc(100vh - 64px);
+      }
+
+      .sidebar.open {
+        left: 0;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+      }
+
+      /* Tombol buka sidebar di mobile */
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .konten-header {
+        padding: 28px 24px;
+      }
+
+      .konten-body {
+        padding: 28px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR (sama dengan landing page) ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">AKHIN<span>.GO</span></a>
+
+      <ul class="nav-menu" id="navMenu" style="display: flex; gap: 8px;">
+        <li><a href="index.html" class="nav-link">← Beranda</a></li>
+        <li><a href="#bab1" class="nav-link">Bab 1</a></li>
+        <li><a href="#bab2" class="nav-link">Bab 2</a></li>
+        <li><a href="#bab3" class="nav-link">Bab 3</a></li>
+      </ul>
+
+      <button class="hamburger" id="hamburger" aria-label="Buka menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== LAYOUT UTAMA: SIDEBAR + KONTEN ===== -->
+  <div class="belajar-layout">
+
+    <!-- ===== SIDEBAR (Daftar Bab) ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h3>📚 Materi</h3>
+        <p>AKHIN.GO · Akhlak Islami</p>
+      </div>
+
+      <div class="bab-list">
+
+        <!-- BAB 1 -->
+        <div class="bab-item" onclick="toggleBab(this, 'subbab1')">
+          <span>🏠 Bab 1: Adab di Rumah</span>
+          <span class="bab-arrow">▼</span>
+        </div>
+        <div class="subbab-list open" id="subbab1">
+          <div class="subbab-item" onclick="tampilKonten('bab1-1')">
+            <span class="subbab-icon">📖</span> 1.1 Birrul Walidain
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab1-2')">
+            <span class="subbab-icon">📖</span> 1.2 Adab terhadap Saudara
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab1-3')">
+            <span class="subbab-icon">🎬</span> 1.3 Video Membantu Ibu
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab1-4')">
+            <span class="subbab-icon">📝</span> 1.4 Kuis Interaktif
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab1-5')">
+            <span class="subbab-icon">🎮</span> 1.5 Game Capit Akhlak
+          </div>
+        </div>
+
+        <!-- BAB 2 -->
+        <div class="bab-item" onclick="toggleBab(this, 'subbab2')">
+          <span>🏫 Bab 2: Adab di Sekolah</span>
+          <span class="bab-arrow">▼</span>
+        </div>
+        <div class="subbab-list" id="subbab2">
+          <div class="subbab-item" onclick="tampilKonten('bab2-1')">
+            <span class="subbab-icon">📖</span> 2.1 Menghormati Guru & Teman
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab2-2')">
+            <span class="subbab-icon">🎬</span> 2.2 Video Guruku Tersayang
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab2-3')">
+            <span class="subbab-icon">🎬</span> 2.3 Video Animasi Teman
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab2-4')">
+            <span class="subbab-icon">🎬</span> 2.4 Video Akhlak di Kelas
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab2-5')">
+            <span class="subbab-icon">🎮</span> 2.5 Game Jalan Adab Pelajar
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab2-6')">
+            <span class="subbab-icon">🎮</span> 2.6 Game Pendekar Akhlak
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab2-7')">
+            <span class="subbab-icon">📝</span> 2.7 Quiz Adabku di Sekolah
+          </div>
+        </div>
+
+        <!-- BAB 3 -->
+        <div class="bab-item" onclick="toggleBab(this, 'subbab3')">
+          <span>🌿 Bab 3: Adab Lingkungan</span>
+          <span class="bab-arrow">▼</span>
+        </div>
+        <div class="subbab-list" id="subbab3">
+          <div class="subbab-item" onclick="tampilKonten('bab3-1')">
+            <span class="subbab-icon">📖</span> 3.1 Menjaga Kebersihan
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab3-2')">
+            <span class="subbab-icon">📖</span> 3.2 Menyayangi Hewan
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab3-3')">
+            <span class="subbab-icon">🎬</span> 3.3 Video Menjaga Kebersihan
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab3-4')">
+            <span class="subbab-icon">🎬</span> 3.4 Video Menjaga Bumi
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab3-5')">
+            <span class="subbab-icon">📝</span> 3.5 Quiz Misi Penyelamat
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab3-6')">
+            <span class="subbab-icon">🎮</span> 3.6 Game Hujan Kebaikan
+          </div>
+          <div class="subbab-item" onclick="tampilKonten('bab3-7')">
+            <span class="subbab-icon">✅</span> 3.7 Ceklis Evaluasi
+          </div>
+        </div>
+
+      </div><!-- /bab-list -->
+    </aside><!-- /sidebar -->
+
+
+    <!-- ===== AREA KONTEN UTAMA ===== -->
+    <main class="konten-area" id="kontenArea">
+
+      <!-- Konten default: halaman pembuka -->
+      <div id="konten-default">
+        <div class="konten-header">
+          <div class="breadcrumb">
+            <a href="index.html">🏠 Beranda</a> › Materi Pembelajaran
+          </div>
+          <h1>📚 Materi Pembelajaran AKHIN.GO</h1>
+          <p>Pilih bab dan subbab di sidebar untuk mulai belajar</p>
+        </div>
+
+        <div class="konten-body">
+
+          <!-- Gambar pembuka -->
+          <img 
+            src="https://i.ibb.co.com/VYz8pNzp/Gemini-Generated-Image-63eyvz63eyvz63ey.png" 
+            alt="foto anak muslim muslimah"
+            class="materi-img"
+            onerror="this.style.display='none'"
+          />
+
+          <div class="konten-blok">
+            <h2>🌟 Selamat Datang di AKHIN.GO!</h2>
+            <p>
+              Selamat datang di platform pembelajaran akhlak islami yang menyenangkan dan interaktif. 
+              Di sini kamu akan belajar tentang adab dan akhlak yang diajarkan oleh Rasulullah SAW 
+              dalam kehidupan sehari-hari.
+            </p>
+          </div>
+
+          <!-- Ringkasan 3 Bab -->
+          <div class="konten-blok">
+            <h2>📋 Ringkasan Materi</h2>
+
+            <div style="display: grid; gap: 16px; margin-top: 16px;">
+
+              <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--color-accent); border-radius: 10px; padding: 20px;">
+                <p style="font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">🏠 Bab 1: Adab di Rumah</p>
+                <p>Membangun pondasi karakter akhlak mulia sejak dini melalui pembiasaan bakti kepada orang tua dan harmoni dalam keluarga.</p>
+              </div>
+
+              <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--color-secondary); border-radius: 10px; padding: 20px;">
+                <p style="font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">🏫 Bab 2: Adab di Sekolah</p>
+                <p>Fokus pada pengembangan kecerdasan sosial, empati terhadap teman sebaya, serta tata krama dan rasa hormat kepada pendidik.</p>
+              </div>
+
+              <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--color-gold); border-radius: 10px; padding: 20px;">
+                <p style="font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">🌿 Bab 3: Adab Lingkungan</p>
+                <p>Menanamkan rasa tanggung jawab, kepedulian terhadap kebersihan, dan kasih sayang terhadap sesama makhluk ciptaan Allah.</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /konten-default -->
+
+
+      <!-- ======================================================
+           BAB 1: ADAB DI RUMAH
+           ====================================================== -->
+
+      <!-- 1.1 Birrul Walidain -->
+      <div id="konten-bab1-1" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 1 › 1.1</div>
+          <h1>📖 1.1 Modul Birrul Walidain</h1>
+          <p>Bab 1: Adab di Rumah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-modul">📖 Modul</span>
+          <div class="konten-blok">
+            <h2>Adab Berbakti kepada Orang Tua</h2>
+            <p>Birrul Walidain adalah berbakti kepada kedua orang tua. Ini merupakan salah satu kewajiban terpenting seorang muslim setelah beribadah kepada Allah SWT.</p>
+          </div>
+          <!-- Embed Canva Modul -->
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.canva.com/design/DAHIfZvJW3k/zgTzwATI7xJdB_WDvmghEA/view?embed"
+              allowfullscreen allow="fullscreen">
+            </iframe>
+          </div>
+          <p class="embed-source">
+            📌 Sumber: <a href="https://www.canva.com/design/DAHIfZvJW3k/zgTzwATI7xJdB_WDvmghEA/view" target="_blank" rel="noopener">Adab dalam Islam: Harmonis Keluarga Berakhlak Mulia</a>
+          </p>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('default')">← Kembali ke Daftar</a>
+            <a href="#" onclick="tampilKonten('bab1-2')">Berikutnya: 1.2 Adab terhadap Saudara →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.2 Adab terhadap Saudara -->
+      <div id="konten-bab1-2" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 1 › 1.2</div>
+          <h1>📖 1.2 Modul Adab terhadap Saudara</h1>
+          <p>Bab 1: Adab di Rumah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-modul">📖 Modul</span>
+          <div class="konten-blok">
+            <h2>Menyayangi dan Menghormati Saudara</h2>
+            <p>Belajar cara berinteraksi dengan baik, saling menyayangi, dan menghormati saudara di rumah sesuai ajaran Islam.</p>
+          </div>
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.canva.com/design/DAHI2jqQf-8/JZf2a5Mp6IxlVek58EhQlg/view?embed"
+              allowfullscreen allow="fullscreen">
+            </iframe>
+          </div>
+          <p class="embed-source">
+            📌 Sumber: <a href="https://www.canva.com/design/DAHI2jqQf-8/JZf2a5Mp6IxlVek58EhQlg/view" target="_blank" rel="noopener">Yellow Colorful Bright - The Importance of Education</a>
+          </p>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab1-1')">← 1.1 Birrul Walidain</a>
+            <a href="#" onclick="tampilKonten('bab1-3')">Berikutnya: 1.3 Video →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.3 Video Membantu Ibu -->
+      <div id="konten-bab1-3" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 1 › 1.3</div>
+          <h1>🎬 1.3 Video Membantu Ibu di Rumah</h1>
+          <p>Bab 1: Adab di Rumah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-video">🎬 Video</span>
+          <div class="konten-blok">
+            <h2>Contoh Nyata Membantu Ibu</h2>
+            <p>Tonton video inspiratif tentang bagaimana cara membantu ibu di rumah sebagai wujud birrul walidain yang bisa langsung dipraktikkan.</p>
+          </div>
+          <!-- Video 1 -->
+          <p style="color: var(--text-secondary); font-weight: 600; margin-bottom: 12px;">📺 Video 1:</p>
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/BQmIxT_9FmM"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+          </div>
+          <!-- Video 2 -->
+          <p style="color: var(--text-secondary); font-weight: 600; margin: 20px 0 12px;">📺 Video 2:</p>
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.youtube.com/embed/fymYOpdV0AM"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab1-2')">← 1.2 Adab terhadap Saudara</a>
+            <a href="#" onclick="tampilKonten('bab1-4')">Berikutnya: 1.4 Kuis →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.4 Kuis Interaktif -->
+      <div id="konten-bab1-4" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 1 › 1.4</div>
+          <h1>📝 1.4 Kuis Interaktif</h1>
+          <p>Bab 1: Adab di Rumah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-kuis">📝 Kuis</span>
+          <div class="konten-blok">
+            <h2>Uji Pemahamanmu!</h2>
+            <p>Kerjakan kuis di bawah ini untuk mengukur pemahamanmu tentang adab di rumah. Semangat ya! 💪</p>
+          </div>
+          <div class="kuis-wrapper">
+            <iframe src="https://wayground.com/embed/quiz/69f4094d5b383768820f966e" title="Kuis Adab di Rumah - Wayground" allowfullscreen></iframe>
+            <a href="https://wayground.com/admin?source=embedFrame" target="_blank" style="font-size: 12px; color: var(--text-muted); text-align: right;">Explore more at Wayground.</a>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab1-3')">← 1.3 Video</a>
+            <a href="#" onclick="tampilKonten('bab1-5')">Berikutnya: 1.5 Game →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.5 Game Capit Akhlak -->
+      <div id="konten-bab1-5" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 1 › 1.5</div>
+          <h1>🎮 1.5 Game Capit Akhlak</h1>
+          <p>Bab 1: Adab di Rumah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-game">🎮 Game</span>
+          <div class="konten-blok">
+            <h2>Mari Bermain Sambil Belajar!</h2>
+            <p>Mainkan game seru Capit Akhlak untuk melatih pemahaman adabmu secara interaktif dan menyenangkan. Klik tombol di bawah untuk mulai!</p>
+          </div>
+          <a href="https://gemini.google.com/share/e4d6ebd0877c" target="_blank" rel="noopener" class="game-link">
+            🎮 Buka Game Capit Akhlak
+          </a>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab1-4')">← 1.4 Kuis</a>
+            <a href="#" onclick="tampilKonten('bab2-1')">Lanjut ke Bab 2 →</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================================================
+           BAB 2: ADAB DI SEKOLAH
+           ====================================================== -->
+
+      <!-- 2.1 Modul Menghormati Guru -->
+      <div id="konten-bab2-1" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.1</div>
+          <h1>📖 2.1 Menghormati Guru dan Teman</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-modul">📖 Modul</span>
+          <div class="konten-blok">
+            <h2>Adab Mulia di Lingkungan Sekolah</h2>
+            <p>Pelajari tata cara menghormati guru dan menyayangi teman sebagaimana diajarkan dalam Islam untuk menciptakan lingkungan belajar yang harmonis.</p>
+          </div>
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.canva.com/design/DAHJ7VLgLrg/2nEqat3VIXzd7v6rvGcKKg/view?embed"
+              allowfullscreen allow="fullscreen">
+            </iframe>
+          </div>
+          <p class="embed-source">
+            📌 Sumber: <a href="https://www.canva.com/design/DAHJ7VLgLrg/2nEqat3VIXzd7v6rvGcKKg/view" target="_blank" rel="noopener">Menghormati Guru dan Menyayangi Teman</a>
+          </p>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab1-5')">← Bab 1 selesai</a>
+            <a href="#" onclick="tampilKonten('bab2-2')">Berikutnya: 2.2 Video →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.2 Video Guruku Tersayang -->
+      <div id="konten-bab2-2" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.2</div>
+          <h1>🎬 2.2 Video Lagu Guruku Tersayang</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-video">🎬 Video</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy" src="https://www.youtube.com/embed/QevJlyk5GfE"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-1')">← 2.1 Modul</a>
+            <a href="#" onclick="tampilKonten('bab2-3')">Berikutnya: 2.3 →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.3 Video Animasi Teman -->
+      <div id="konten-bab2-3" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.3</div>
+          <h1>🎬 2.3 Video Animasi Sesama Teman</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-video">🎬 Video</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy" src="https://www.youtube.com/embed/re7uZisvFwo"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-2')">← 2.2</a>
+            <a href="#" onclick="tampilKonten('bab2-4')">Berikutnya: 2.4 →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.4 Video Akhlak di Kelas -->
+      <div id="konten-bab2-4" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.4</div>
+          <h1>🎬 2.4 Video Akhlak di Kelas</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-video">🎬 Video</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy" src="https://www.youtube.com/embed/k8KHpfxOUfM"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-3')">← 2.3</a>
+            <a href="#" onclick="tampilKonten('bab2-5')">Berikutnya: 2.5 Game →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.5 Game Jalan Adab Pelajar -->
+      <div id="konten-bab2-5" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.5</div>
+          <h1>🎮 2.5 Game Jalan Adab Pelajar</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-game">🎮 Game</span>
+          <div class="konten-blok">
+            <h2>Jelajahi Jalan Adab!</h2>
+            <p>Mainkan game interaktif tentang adab seorang pelajar muslim di lingkungan sekolah.</p>
+          </div>
+          <a href="https://gemini.google.com/share/3e02628a8c04" target="_blank" rel="noopener" class="game-link">
+            🎮 Buka Game Jalan Adab Pelajar
+          </a>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-4')">← 2.4 Video</a>
+            <a href="#" onclick="tampilKonten('bab2-6')">Berikutnya: 2.6 →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.6 Game Pendekar Akhlak -->
+      <div id="konten-bab2-6" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.6</div>
+          <h1>🎮 2.6 Game Pendekar Akhlak</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-game">🎮 Game</span>
+          <div class="konten-blok">
+            <h2>Jadilah Pendekar Akhlak!</h2>
+            <p>Tantang dirimu dengan game seru pendekar akhlak dan buktikan pemahamanmu tentang adab di sekolah!</p>
+          </div>
+          <a href="https://gemini.google.com/share/085f39db065a" target="_blank" rel="noopener" class="game-link">
+            🎮 Buka Game Pendekar Akhlak
+          </a>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-5')">← 2.5 Game</a>
+            <a href="#" onclick="tampilKonten('bab2-7')">Berikutnya: 2.7 Quiz →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.7 Quiz Adabku di Sekolah -->
+      <div id="konten-bab2-7" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 2 › 2.7</div>
+          <h1>📝 2.7 Quiz Adabku di Sekolah</h1>
+          <p>Bab 2: Adab di Sekolah</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-kuis">📝 Quiz</span>
+          <div class="konten-blok">
+            <h2>Uji Adabmu di Sekolah!</h2>
+            <p>Selesaikan quiz interaktif ini untuk mengecek seberapa paham kamu tentang adab di sekolah.</p>
+          </div>
+          <!-- Embed Zep Quiz langsung tampil di halaman -->
+          <div style="width:100%; height:700px; border-radius: var(--border-radius); overflow:hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow);">
+            <iframe
+              src="https://quiz.zep.us/id/play/6P4LNV"
+              title="Quiz Adabku di Sekolah - Zep"
+              width="100%"
+              height="100%"
+              style="border:none; display:block;"
+              allowfullscreen
+              allow="fullscreen"
+            ></iframe>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">
+            Jika quiz tidak tampil, <a href="https://quiz.zep.us/id/play/6P4LNV" target="_blank" rel="noopener" style="color: var(--color-accent);">buka di tab baru</a>.
+          </p>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-6')">← 2.6 Game</a>
+            <a href="#" onclick="tampilKonten('bab3-1')">Lanjut ke Bab 3 →</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================================================
+           BAB 3: ADAB LINGKUNGAN
+           ====================================================== -->
+
+      <!-- 3.1 Modul Menjaga Kebersihan -->
+      <div id="konten-bab3-1" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.1</div>
+          <h1>📖 3.1 Modul Menjaga Kebersihan</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-modul">📖 Modul</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.canva.com/design/DAHJRR-Cfm8/fi-u2YFHwjBd-jeh5wrsJQ/view?embed"
+              allowfullscreen allow="fullscreen">
+            </iframe>
+          </div>
+          <p class="embed-source">📌 Sumber: <a href="https://www.canva.com/design/DAHJRR-Cfm8/fi-u2YFHwjBd-jeh5wrsJQ/view" target="_blank" rel="noopener">Adab Lingkungan</a></p>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab2-7')">← Bab 2 selesai</a>
+            <a href="#" onclick="tampilKonten('bab3-2')">Berikutnya: 3.2 →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.2 Modul Menyayangi Hewan -->
+      <div id="konten-bab3-2" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.2</div>
+          <h1>📖 3.2 Modul Menyayangi Hewan</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-modul">📖 Modul</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy"
+              src="https://www.canva.com/design/DAHJRuus-jU/Qf3BsYfCnUgI5PHE5_k8NQ/view?embed"
+              allowfullscreen allow="fullscreen">
+            </iframe>
+          </div>
+          <p class="embed-source">📌 Sumber: <a href="https://www.canva.com/design/DAHJRuus-jU/Qf3BsYfCnUgI5PHE5_k8NQ/view" target="_blank" rel="noopener">Adab Lingkungan - Menyayangi Hewan</a></p>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab3-1')">← 3.1</a>
+            <a href="#" onclick="tampilKonten('bab3-3')">Berikutnya: 3.3 Video →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.3 Video Menjaga Kebersihan -->
+      <div id="konten-bab3-3" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.3</div>
+          <h1>🎬 3.3 Video Inspiratif Menjaga Kebersihan</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-video">🎬 Video</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy" src="https://www.youtube.com/embed/7Yx3zQOAn_c"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab3-2')">← 3.2</a>
+            <a href="#" onclick="tampilKonten('bab3-4')">Berikutnya: 3.4 →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.4 Video Menjaga Bumi -->
+      <div id="konten-bab3-4" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.4</div>
+          <h1>🎬 3.4 Video Menjaga Bumi dari Kerusakan</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-video">🎬 Video</span>
+          <div class="embed-wrapper">
+            <iframe loading="lazy" src="https://www.youtube.com/embed/8BEzuDzyT3o"
+              allowfullscreen allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab3-3')">← 3.3</a>
+            <a href="#" onclick="tampilKonten('bab3-5')">Berikutnya: 3.5 Quiz →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.5 Quiz Misi Penyelamat Energi -->
+      <div id="konten-bab3-5" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.5</div>
+          <h1>📝 3.5 Quiz Misi Penyelamat Energi Kebaikan</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-kuis">📝 Quiz</span>
+          <div class="kuis-wrapper">
+            <iframe src="https://wayground.com/embed/quiz/6a2041953dfa78c47fb8c0a7" title="Quiz Misi Penyelamat - Wayground" allowfullscreen></iframe>
+            <a href="https://wayground.com/admin?source=embedFrame" target="_blank" style="font-size: 12px; color: var(--text-muted); text-align: right;">Explore more at Wayground.</a>
+          </div>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab3-4')">← 3.4 Video</a>
+            <a href="#" onclick="tampilKonten('bab3-6')">Berikutnya: 3.6 Game →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.6 Game Hujan Kebaikan -->
+      <div id="konten-bab3-6" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.6</div>
+          <h1>🎮 3.6 Game Hujan Kebaikan</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-game">🎮 Game</span>
+          <a href="https://gemini.google.com/share/db87b509de60" target="_blank" rel="noopener" class="game-link">
+            🎮 Buka Game Hujan Kebaikan
+          </a>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab3-5')">← 3.5 Quiz</a>
+            <a href="#" onclick="tampilKonten('bab3-7')">Berikutnya: 3.7 Ceklis →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.7 Ceklis Evaluasi -->
+      <div id="konten-bab3-7" class="konten-bagian" style="display:none;">
+        <div class="konten-header">
+          <div class="breadcrumb"><a href="#" onclick="tampilKonten('default')">📚 Materi</a> › Bab 3 › 3.7</div>
+          <h1>✅ 3.7 Ceklis Evaluasi Diri</h1>
+          <p>Bab 3: Adab Lingkungan</p>
+        </div>
+        <div class="konten-body">
+          <span class="konten-badge badge-kuis">✅ Evaluasi</span>
+          <div class="konten-blok">
+            <h2>Cek Aksi Adabmu Hari Ini!</h2>
+            <p>Gunakan ceklis evaluasi ini untuk melihat seberapa jauh kamu sudah mempraktikkan adab dalam kehidupan sehari-hari.</p>
+          </div>
+          <a href="https://gemini.google.com/share/72318535a78e" target="_blank" rel="noopener" class="game-link">
+            ✅ Buka Ceklis Evaluasi
+          </a>
+          <div class="nav-bab">
+            <a href="#" onclick="tampilKonten('bab3-6')">← 3.6 Game</a>
+            <a href="#" onclick="tampilKonten('default')" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 24px; border-radius: var(--border-radius);">
+              🏁 Selesai! Kembali ke Beranda
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </main><!-- /konten-area -->
+  </div><!-- /belajar-layout -->
+
+  <!-- Tombol buka sidebar di mobile -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    📚 Daftar Materi
+  </button>
+
+  <script>
+    // ===== NAVIGASI KONTEN =====
+    // Fungsi untuk menampilkan konten yang dipilih dan menyembunyikan yang lain
+
+    function tampilKonten(id) {
+      // Sembunyikan semua konten
+      document.getElementById('konten-default').style.display = 'none';
+      document.querySelectorAll('.konten-bagian').forEach(function(el) {
+        el.style.display = 'none';
+      });
+
+      // Tampilkan konten yang dipilih
+      if (id === 'default') {
+        document.getElementById('konten-default').style.display = 'block';
+      } else {
+        const target = document.getElementById('konten-' + id);
+        if (target) {
+          target.style.display = 'block';
+          // Scroll ke atas area konten
+          document.querySelector('.konten-area').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      // Update status aktif di sidebar
+      document.querySelectorAll('.subbab-item').forEach(function(item) {
+        item.classList.remove('active');
+      });
+
+      // Tutup sidebar di mobile setelah memilih
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    }
+
+    // ===== ACCORDION BAB DI SIDEBAR =====
+    // Buka/tutup daftar subbab saat judul bab diklik
+
+    function toggleBab(el, subbabId) {
+      const subbabList = document.getElementById(subbabId);
+      el.classList.toggle('open');
+      subbabList.classList.toggle('open');
+    }
+
+    // ===== TOGGLE SIDEBAR MOBILE =====
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Tutup sidebar mobile saat klik di luar
+    document.addEventListener('click', function(e) {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.getElementById('sidebarToggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(e.target) && 
+          !toggle.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    // ===== NAVBAR SCROLL =====
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }, { passive: true });
+  </script>
+
+  <!-- Sistem Audio Interaktif (sama dengan landing page) -->
+  <script src="audio.js"></script>
+
+</body>
+</html>
